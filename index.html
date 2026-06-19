@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebP Watermarker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        .checkered-bg {
+            background-image: linear-gradient(45deg, #18191a 25%, transparent 25%), linear-gradient(-45deg, #18191a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #18191a 75%), linear-gradient(-45deg, transparent 75%, #18191a 75%);
+            background-size: 24px 24px;
+            background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+            background-color: #242526;
+        }
+        :root { --navbar-h: 56px; }
+        body { overflow: hidden; }
+        .main-scroll {
+            height: calc(100vh - var(--navbar-h));
+            overflow-y: auto;
+        }
+        @media (min-width: 992px) {
+            .sticky-panel {
+                position: sticky;
+                top: 1.5rem;
+                max-height: calc(100vh - var(--navbar-h) - 3rem);
+                overflow-y: auto;
+            }
+        }
+        .sticky-panel::-webkit-scrollbar { width: 4px; }
+        .sticky-panel::-webkit-scrollbar-track { background: transparent; }
+        .sticky-panel::-webkit-scrollbar-thumb { background: #495057; border-radius: 2px; }
+        .fit-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .navbar-brand span.badge-pill {
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
+        }
+        #clearBtn:hover { background-color: #dc3545 !important; color: #fff !important; }
+        #clearBtn { transition: background-color 0.15s, color 0.15s; }
+        .bg-amber { background-color: #d97706 !important; }
+        .panel-card {
+            background-color: #161b22 !important;
+            border-color: #344154 !important;
+        }
+        .panel-header {
+            background-color: #1f2937 !important;
+            border-bottom: 1px solid #344154 !important;
+        }
+        .panel-footer {
+            background-color: #1f2937 !important;
+            border-top: 1px solid #344154 !important;
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-black border-bottom border-secondary px-lg-5 px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+            <i class="bi bi-droplet-half text-info fs-5"></i>
+            <span class="fw-bold text-light">WebP Watermarker</span>
+        </a>
+        <button id="clearBtn" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2" title="Clear all saved config">
+            <i class="bi bi-trash3"></i>
+            <span class="d-none d-sm-inline">Clear saved config</span>
+        </button>
+    </nav>
+
+    <div class="main-scroll"><div class="container-fluid px-lg-5 py-4">
+        <div class="row g-4">
+            
+            <div class="col-12 col-xl-4 col-lg-5">
+                <div class="card panel-card border-secondary shadow-sm h-100 d-flex flex-column sticky-panel">
+                    <div class="card-header panel-header py-3">
+                        <h6 class="card-title mb-0 text-info text-uppercase tracking-wider fw-bold small"><i class="bi bi-sliders me-2"></i>1. Setup Parameters</h6>
+                    </div>
+                    <div class="card-body flex-grow-1 py-3">
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold small mb-1 d-flex align-items-center gap-2">
+                                Source Image(s) (Optional)
+                                <span id="batchBadge" class="badge bg-info text-dark d-none" style="font-size:0.65rem;">BATCH</span>
+                            </label>
+                            <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
+                        </div>
+                        <div id="batchProgress" class="d-none mb-2">
+                            <div class="progress" style="height:6px;">
+                                <div id="batchProgressBar" class="progress-bar bg-info" role="progressbar" style="width:0%"></div>
+                            </div>
+                            <div id="batchProgressLabel" class="text-secondary small mt-1 text-center">0 / 0</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold small mb-1">Layout Mode</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="layoutMode" id="modeTiled" checked>
+                                <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeTiled">Tiled Grid</label>
+
+                                <input type="radio" class="btn-check" name="layoutMode" id="modeSingle">
+                                <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeSingle">Single Asset</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold small mb-1">Text Phrase</label>
+                            <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Font Size (px)</label>
+                                <input type="number" id="fontSize" value="50" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Opacity (0-1)</label>
+                                <input type="number" id="opacity" value="0.5" step="0.1" min="0" max="1" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Text Color</label>
+                                <input type="color" id="color" value="#c0c0c0" class="form-control form-control-color bg-dark border-secondary w-100 p-1 form-control-sm" style="height: 31px;">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Rotation (deg)</label>
+                                <input type="number" id="rotation" value="-45" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold small mb-1">Font Family</label>
+                            <select id="fontFamily" class="form-select bg-dark text-light border-secondary form-select-sm">
+                                <option value="sans-serif">Sans-Serif</option>
+                                <option value="serif">Serif</option>
+                                <option value="monospace">Monospace</option>
+                                <option value="Impact">Impact</option>
+                            </select>
+                        </div>
+
+                        <div id="dimensionsControls" class="d-none border-top border-secondary pt-2 mt-2">
+                            <div class="row g-2">
+                                <div id="widthBox" class="col-6">
+                                    <label class="form-label text-light fw-semibold small mb-1">Canvas Width</label>
+                                    <input type="number" id="gridWidth" value="1200" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="heightBox" class="col-6">
+                                    <label class="form-label text-light fw-semibold small mb-1">Canvas Height</label>
+                                    <input type="number" id="gridHeight" value="1600" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="gapXBox" class="col-6">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap X (px)</label>
+                                    <input type="number" id="gapX" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="gapYBox" class="col-6">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap Y (px)</label>
+                                    <input type="number" id="gapY" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="qualitySettings" class="d-none border-top border-secondary pt-2 mt-2">
+                            <label class="form-label text-light fw-semibold small d-flex justify-content-between mb-1">
+                                <span>WebP Render Quality</span>
+                                <span id="qualityVal" class="text-info fw-bold">85%</span>
+                            </label>
+                            <input type="range" id="webpQuality" min="1" max="100" value="85" class="form-range">
+                        </div>
+                    </div>
+                    <div class="card-footer panel-footer p-3">
+                        <button id="downloadBtn" class="btn btn-info btn-sm w-100 fw-bold py-2.5 shadow-sm text-uppercase tracking-wide"><i class="bi bi-download me-2"></i>Compile &amp; Export to WebP</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8 col-lg-7">
+                <div class="card panel-card border-secondary shadow-sm d-flex flex-column" style="height: calc(100vh - var(--navbar-h) - 3rem);">
+                    <div class="card-header panel-header py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex flex-column">
+                            <h6 class="card-title mb-0 text-info text-uppercase tracking-wider fw-bold small"><i class="bi bi-eye me-2"></i>2. Preview</h6>
+                            <div id="previewImageInfo" class="d-none align-items-center gap-2 mt-1">
+                                <span id="previewImageFormatBadge" class="badge" style="font-size:0.75rem;"></span>
+                                <span id="previewImageInfoText" class="text-light fw-medium" style="font-size:0.85rem;"></span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div id="previewNav" class="d-none align-items-center gap-2">
+                                <button id="prevBtn" class="btn btn-sm btn-outline-info px-2 py-0" title="Previous image"><i class="bi bi-chevron-left"></i></button>
+                                <span id="previewIndex" class="text-light fw-medium" style="min-width:3rem;text-align:center;font-size:0.85rem;">1 / 1</span>
+                                <button id="nextBtn" class="btn btn-sm btn-outline-info px-2 py-0" title="Next image"><i class="bi bi-chevron-right"></i></button>
+                            </div>
+                            <button id="downloadCurrentBtn" class="btn btn-sm btn-success px-2 py-1 d-none align-items-center gap-1" title="Download currently previewed image">
+                                <i class="bi bi-download"></i>
+                                <span class="d-none d-sm-inline">Download current</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-3 flex-grow-1 bg-black d-flex align-items-center justify-content-center overflow-hidden">
+                        <div class="checkered-bg shadow-lg rounded p-1 w-100 h-100 d-flex align-items-center justify-content-center">
+                            <canvas id="watermarkCanvas" class="fit-canvas shadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div><!-- /main-scroll -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <script>
+        const STORAGE_KEY = 'wmw_config';
+
+        const DEFAULTS = {
+            text: 'COPY',
+            fontSize: '50',
+            opacity: '0.5',
+            color: '#c0c0c0',
+            rotation: '-45',
+            fontFamily: 'sans-serif',
+            gridWidth: '1200',
+            gridHeight: '1600',
+            gapX: '150',
+            gapY: '150',
+            webpQuality: '85',
+            layoutMode: 'tiled'
+        };
+
+        const canvas = document.getElementById('watermarkCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentMode = 'tiled';
+        let uploadedImage = null;
+        let uploadedImageName = '';
+        let uploadedFile = null;
+
+        const modeSingleRadio = document.getElementById('modeSingle');
+        const modeTiledRadio = document.getElementById('modeTiled');
+        const dimensionsControls = document.getElementById('dimensionsControls');
+        const widthBox = document.getElementById('widthBox');
+        const heightBox = document.getElementById('heightBox');
+        const gapXBox = document.getElementById('gapXBox');
+        const gapYBox = document.getElementById('gapYBox');
+        const imageLoader = document.getElementById('imageLoader');
+        const qualitySettings = document.getElementById('qualitySettings');
+        const webpQuality = document.getElementById('webpQuality');
+        const qualityVal = document.getElementById('qualityVal');
+        const previewImageInfo = document.getElementById('previewImageInfo');
+        const previewImageFormatBadge = document.getElementById('previewImageFormatBadge');
+        const previewImageInfoText = document.getElementById('previewImageInfoText');
+        const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
+
+        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY'].reduce((acc, id) => {
+            acc[id] = document.getElementById(id);
+            return acc;
+        }, {});
+
+        // --- Persistence ---
+        function saveConfig() {
+            const cfg = {};
+            Object.entries(inputs).forEach(([k, el]) => cfg[k] = el.value);
+            cfg.webpQuality = webpQuality.value;
+            cfg.layoutMode = currentMode;
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch(e) {}
+        }
+
+        function loadConfig() {
+            let cfg = DEFAULTS;
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) cfg = { ...DEFAULTS, ...JSON.parse(stored) };
+            } catch(e) {}
+
+            Object.entries(inputs).forEach(([k, el]) => {
+                if (cfg[k] !== undefined) el.value = cfg[k];
+            });
+            webpQuality.value = cfg.webpQuality;
+            qualityVal.textContent = `${cfg.webpQuality}%`;
+
+            currentMode = cfg.layoutMode || 'tiled';
+            if (currentMode === 'tiled') {
+                modeTiledRadio.checked = true;
+            } else {
+                modeSingleRadio.checked = true;
+            }
+        }
+
+        function clearConfig() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+            Object.entries(DEFAULTS).forEach(([k, v]) => {
+                if (inputs[k]) inputs[k].value = v;
+            });
+            webpQuality.value = DEFAULTS.webpQuality;
+            qualityVal.textContent = `${DEFAULTS.webpQuality}%`;
+            currentMode = DEFAULTS.layoutMode;
+            modeTiledRadio.checked = true;
+            modeSingleRadio.checked = false;
+            uploadedImage = null;
+            uploadedImageName = '';
+            uploadedFile = null;
+            batchFiles = [];
+            previewIdx = 0;
+            imageLoader.value = '';
+            updatePreviewNav();
+            toggleControlsVisibility();
+            updateWatermark();
+        }
+
+        // --- Event listeners ---
+        webpQuality.addEventListener('input', (e) => {
+            qualityVal.textContent = `${e.target.value}%`;
+            saveConfig();
+        });
+
+        imageLoader.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) {
+                uploadedImage = null;
+                uploadedImageName = '';
+                uploadedFile = null;
+                batchFiles = [];
+                previewIdx = 0;
+                toggleControlsVisibility();
+                updatePreviewNav();
+                updateWatermark();
+                return;
+            }
+            if (files.length === 1) {
+                // Single mode: load image for preview
+                batchFiles = [];
+                previewIdx = 0;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        uploadedImage = img;
+                        toggleControlsVisibility();
+                        updatePreviewNav();
+                        updateWatermark();
+                    };
+                    img.src = event.target.result;
+                };
+                uploadedImageName = files[0].name.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_');
+                uploadedFile = files[0];
+                reader.readAsDataURL(files[0]);
+            } else {
+                // Batch mode: queue all files, preview first one
+                batchFiles = files;
+                previewIdx = 0;
+                uploadedImage = null;
+                uploadedImageName = '';
+                uploadedFile = files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        uploadedImage = img;
+                        toggleControlsVisibility();
+                        updatePreviewNav();
+                        updateWatermark();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+
+        modeSingleRadio.addEventListener('change', () => setMode('single'));
+        modeTiledRadio.addEventListener('change', () => setMode('tiled'));
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear all saved configuration and reset to defaults?')) clearConfig();
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            saveConfig();
+            toggleControlsVisibility();
+            updateWatermark();
+        }
+
+        function toggleControlsVisibility() {
+            qualitySettings.classList.remove('d-none');
+
+            // Update badge & button
+            const isBatch = batchFiles.length > 1;
+            document.getElementById('batchBadge').classList.toggle('d-none', !isBatch);
+            const dlBtn = document.getElementById('downloadBtn');
+            if (isBatch) {
+                dlBtn.innerHTML = '<i class="bi bi-file-zip me-2"></i>Watermark All &amp; Download ZIP';
+            } else {
+                dlBtn.innerHTML = '<i class="bi bi-download me-2"></i>Compile &amp; Export to WebP';
+            }
+
+            if (uploadedImage) {
+                widthBox.classList.add('d-none');
+                heightBox.classList.add('d-none');
+                if (currentMode === 'tiled') {
+                    dimensionsControls.classList.remove('d-none');
+                    gapXBox.classList.remove('d-none');
+                    gapYBox.classList.remove('d-none');
+                } else {
+                    dimensionsControls.classList.add('d-none');
+                    gapXBox.classList.add('d-none');
+                    gapYBox.classList.add('d-none');
+                }
+            } else {
+                if (currentMode === 'single') {
+                    dimensionsControls.classList.add('d-none');
+                    widthBox.classList.add('d-none');
+                    heightBox.classList.add('d-none');
+                    gapXBox.classList.add('d-none');
+                    gapYBox.classList.add('d-none');
+                } else {
+                    dimensionsControls.classList.remove('d-none');
+                    widthBox.classList.remove('d-none');
+                    heightBox.classList.remove('d-none');
+                    gapXBox.classList.remove('d-none');
+                    gapYBox.classList.remove('d-none');
+                }
+            }
+        }
+
+        // --- Batch state ---
+        let batchFiles = [];
+        const batchProgress = document.getElementById('batchProgress');
+        const batchProgressBar = document.getElementById('batchProgressBar');
+        const batchProgressLabel = document.getElementById('batchProgressLabel');
+
+        function getWatermarkParams() {
+            return {
+                text: inputs.text.value,
+                fontSize: parseInt(inputs.fontSize.value) || 20,
+                opacity: parseFloat(inputs.opacity.value) || 0.5,
+                color: inputs.color.value,
+                rotation: (parseInt(inputs.rotation.value) || 0) * Math.PI / 180,
+                fontFamily: inputs.fontFamily.value,
+                gapX: parseInt(inputs.gapX.value) || 150,
+                gapY: parseInt(inputs.gapY.value) || 150,
+                qualityFactor: parseFloat(webpQuality.value) / 100,
+                mode: currentMode
+            };
+        }
+
+        function applyWatermarkToImage(imgEl, params) {
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = imgEl.width;
+            offCanvas.height = imgEl.height;
+            const offCtx = offCanvas.getContext('2d');
+            offCtx.drawImage(imgEl, 0, 0);
+            if (params.mode === 'single') {
+                drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation);
+            } else {
+                for (let x = params.gapX / 2; x < offCanvas.width + params.gapX; x += params.gapX) {
+                    for (let y = params.gapY / 2; y < offCanvas.height + params.gapY; y += params.gapY) {
+                        drawWatermarkInstance(offCtx, x, y, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation);
+                    }
+                }
+            }
+            return offCanvas.toDataURL('image/webp', params.qualityFactor);
+        }
+
+        function loadImageFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', async () => {
+            const dlBtn = document.getElementById('downloadBtn');
+            if (batchFiles.length > 1) {
+                // Batch ZIP download
+                dlBtn.disabled = true;
+                batchProgress.classList.remove('d-none');
+                const params = getWatermarkParams();
+                const zip = new JSZip();
+                const folder = zip.folder('watermarked');
+                const wmText = params.text.toLowerCase().replace(/\s+/g, '_');
+
+                for (let i = 0; i < batchFiles.length; i++) {
+                    const f = batchFiles[i];
+                    batchProgressLabel.textContent = `${i + 1} / ${batchFiles.length} — ${f.name}`;
+                    batchProgressBar.style.width = `${Math.round(((i + 1) / batchFiles.length) * 100)}%`;
+                    try {
+                        const img = await loadImageFile(f);
+                        const dataUrl = applyWatermarkToImage(img, params);
+                        const base64 = dataUrl.split(',')[1];
+                        const outName = f.name.replace(/\.[^.]+$/, '') + `_${wmText}_wm.webp`;
+                        folder.file(outName, base64, { base64: true });
+                    } catch(err) { console.warn('Skipped:', f.name, err); }
+                }
+
+                batchProgressLabel.textContent = 'Generating ZIP…';
+                const zipBlob = await zip.generateAsync({ type: 'base64' });
+                const link = document.createElement('a');
+                link.href = 'data:application/zip;base64,' + zipBlob;
+                link.download = `watermarked_${wmText}_batch.zip`;
+                link.click();
+                batchProgress.classList.add('d-none');
+                batchProgressBar.style.width = '0%';
+                dlBtn.disabled = false;
+            } else {
+                // Single download
+                const link = document.createElement('a');
+                const text = inputs.text.value.toLowerCase().replace(/\s+/g, '_');
+                const filename = uploadedImage ? `${uploadedImageName}_${text}_wm` : `${text}_wm`;
+                link.download = `${filename}.webp`;
+                const qualityFactor = parseFloat(webpQuality.value) / 100;
+                link.href = canvas.toDataURL('image/webp', qualityFactor);
+                link.click();
+            }
+        });
+
+        downloadCurrentBtn.addEventListener('click', () => {
+            if (!uploadedImage) return;
+            const isBatch = batchFiles.length > 1;
+            const currentFile = isBatch ? batchFiles[previewIdx] : uploadedFile;
+            const baseName = currentFile
+                ? currentFile.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_')
+                : uploadedImageName;
+            const text = inputs.text.value.toLowerCase().replace(/\s+/g, '_');
+            const qualityFactor = parseFloat(webpQuality.value) / 100;
+            const link = document.createElement('a');
+            link.download = `${baseName}_${text}_wm.webp`;
+            link.href = canvas.toDataURL('image/webp', qualityFactor);
+            link.click();
+        });
+
+        function drawWatermarkInstance(context, x, y, text, fontSize, fontFamily, color, opacity, rotation) {
+            context.save();
+            context.translate(x, y);
+            context.rotate(rotation);
+            context.font = `${fontSize}px ${fontFamily}`;
+            context.fillStyle = color;
+            context.globalAlpha = opacity;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, 0, 0);
+            context.restore();
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes && bytes !== 0) return '';
+            if (bytes < 1024) return `${bytes} B`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        }
+
+        function getFileTypeLabel(file) {
+            if (!file) return '';
+            if (file.name && file.name.includes('.')) {
+                return file.name.split('.').pop().toUpperCase();
+            }
+            if (file.type) {
+                return file.type.replace('image/', '').toUpperCase();
+            }
+            return '';
+        }
+
+        function getFormatBadgeClass(typeLabel) {
+            switch (typeLabel) {
+                case 'AVIF': return 'bg-success text-white';
+                case 'WEBP': return 'bg-primary text-white';
+                case 'PNG': return 'bg-warning text-dark';
+                case 'JPG':
+                case 'JPEG': return 'bg-amber text-dark';
+                default: return 'bg-secondary text-white';
+            }
+        }
+
+        function updatePreviewImageInfo() {
+            if (!uploadedImage || !uploadedImage.width || !uploadedImage.height) {
+                previewImageInfo.classList.add('d-none');
+                previewImageInfo.classList.remove('d-flex');
+                previewImageFormatBadge.textContent = '';
+                previewImageInfoText.textContent = '';
+                downloadCurrentBtn.classList.add('d-none');
+                downloadCurrentBtn.classList.remove('d-flex');
+                return;
+            }
+            const w = uploadedImage.width;
+            const h = uploadedImage.height;
+            const ratio = (w / h).toFixed(2);
+            const isBatch = batchFiles.length > 1;
+            const file = isBatch ? batchFiles[previewIdx] : uploadedFile;
+            const name = isBatch
+                ? (file ? file.name : '')
+                : (uploadedImageName ? `${uploadedImageName}` : '');
+
+            const typeLabel = getFileTypeLabel(file);
+            previewImageFormatBadge.textContent = typeLabel;
+            previewImageFormatBadge.className = `badge ${getFormatBadgeClass(typeLabel)}`;
+            previewImageFormatBadge.classList.toggle('d-none', !typeLabel);
+
+            const sizeLabel = formatFileSize(file ? file.size : null);
+            const textParts = [];
+            if (name) textParts.push(name);
+            textParts.push(`${w}×${h} (${ratio})`);
+            if (sizeLabel) textParts.push(sizeLabel);
+            previewImageInfoText.textContent = textParts.join(' - ');
+
+            previewImageInfo.classList.remove('d-none');
+            previewImageInfo.classList.add('d-flex');
+
+            downloadCurrentBtn.classList.remove('d-none');
+            downloadCurrentBtn.classList.add('d-flex');
+        }
+
+        function updateWatermark() {
+            const text = inputs.text.value;
+            const fontSize = parseInt(inputs.fontSize.value) || 20;
+            const opacity = parseFloat(inputs.opacity.value) || 0.5;
+            const color = inputs.color.value;
+            const rotation = (parseInt(inputs.rotation.value) || 0) * Math.PI / 180;
+            const fontFamily = inputs.fontFamily.value;
+
+            if (uploadedImage) {
+                canvas.width = uploadedImage.width;
+                canvas.height = uploadedImage.height;
+            } else if (currentMode === 'single') {
+                ctx.font = `${fontSize}px ${fontFamily}`;
+                const textMetrics = ctx.measureText(text);
+                const textWidth = textMetrics.width;
+                const textHeight = fontSize;
+                const padding = 60;
+                canvas.width = Math.abs(textWidth * Math.cos(rotation)) + Math.abs(textHeight * Math.sin(rotation)) + padding;
+                canvas.height = Math.abs(textWidth * Math.sin(rotation)) + Math.abs(textHeight * Math.cos(rotation)) + padding;
+            } else {
+                canvas.width = parseInt(inputs.gridWidth.value) || 1200;
+                canvas.height = parseInt(inputs.gridHeight.value) || 1600;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (uploadedImage) {
+                ctx.drawImage(uploadedImage, 0, 0);
+            }
+
+            if (currentMode === 'single') {
+                drawWatermarkInstance(ctx, canvas.width / 2, canvas.height / 2, text, fontSize, fontFamily, color, opacity, rotation);
+            } else {
+                const gapX = parseInt(inputs.gapX.value) || 150;
+                const gapY = parseInt(inputs.gapY.value) || 150;
+                for (let x = gapX / 2; x < canvas.width + gapX; x += gapX) {
+                    for (let y = gapY / 2; y < canvas.height + gapY; y += gapY) {
+                        drawWatermarkInstance(ctx, x, y, text, fontSize, fontFamily, color, opacity, rotation);
+                    }
+                }
+            }
+
+            updatePreviewImageInfo();
+        }
+
+        // --- Preview navigation ---
+        let previewIdx = 0;
+        const previewNav = document.getElementById('previewNav');
+        const previewIndexLabel = document.getElementById('previewIndex');
+
+        function updatePreviewNav() {
+            const isBatch = batchFiles.length > 1;
+            if (isBatch) {
+                previewNav.classList.remove('d-none');
+                previewNav.classList.add('d-flex');
+                previewIndexLabel.textContent = `${previewIdx + 1} / ${batchFiles.length}`;
+                document.getElementById('prevBtn').disabled = previewIdx === 0;
+                document.getElementById('nextBtn').disabled = previewIdx === batchFiles.length - 1;
+            } else {
+                previewNav.classList.add('d-none');
+                previewNav.classList.remove('d-flex');
+                previewIdx = 0;
+            }
+        }
+
+        function loadPreviewImage(idx) {
+            if (!batchFiles[idx]) return;
+            uploadedFile = batchFiles[idx];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => { uploadedImage = img; updateWatermark(); };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(batchFiles[idx]);
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (previewIdx > 0) { previewIdx--; loadPreviewImage(previewIdx); updatePreviewNav(); }
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (previewIdx < batchFiles.length - 1) { previewIdx++; loadPreviewImage(previewIdx); updatePreviewNav(); }
+        });
+
+        Object.values(inputs).forEach(input => input.addEventListener('input', () => {
+            saveConfig();
+            updateWatermark();
+        }));
+
+        // Init
+        loadConfig();
+        toggleControlsVisibility();
+        updateWatermark();
+    </script>
+</body>
+</html>
