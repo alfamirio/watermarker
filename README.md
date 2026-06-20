@@ -30,19 +30,20 @@ A lightweight, browser-based tool for applying text watermarks to images, blurri
 
 ### Tiled Grid (Default)
 
-1. Optionally load one or multiple source images with the **Source Image(s)** picker. 
-2. Type your watermark text in **Text Phrase**.
-3. Adjust font, size, color, opacity, text wrapping width, and rotation angle.
-4. Toggle **Auto-fit Gap** to automatically shift grids and avoid text overlap collisions dynamically.
-5. If no image is loaded, adjust **Width**, **Height**, **Gap X**, and **Gap Y** to control the absolute structural dimensions of the output asset.
-6. Click **Compile & Export** (or **Watermark All & Download ZIP** for batches).
+1. Optionally load one or multiple source images with the **Source Image(s)** picker.
+2. Select a **Layout Mode** (Tiled or Single). Enable **AutoFit** to avoid text overlap collisions dynamically.
+3. When an image is loaded, toggle **B&W** for grayscale output and adjust **Resize %** to scale before watermarking.
+4. Type your watermark text in **Phrase** and adjust font, size, color, opacity, wrap width, and rotation.
+5. Optionally configure stroke width, color, and opacity inline with the text controls.
+6. If no image is loaded, adjust **Width**, **Height**, **Gap X**, and **Gap Y** to control the absolute structural dimensions of the output asset.
+7. Click **Compile & Export** (or **Watermark All & Download ZIP** for batches).
 
 ### Drawing Censored Blurs
 
-1. Upload an image and click the yellow **Draw** button under the Censor Regions section.
-2. Click and drag anywhere directly over the live preview canvas to establish a box.
-3. Modify the blur threshold dynamically via the **Blur Strength** slider.
-4. Remove unwanted bounding boxes instantly using the individual red delete buttons (`X`).
+1. Upload an image — the **Censor** section appears automatically.
+2. Click the yellow **Draw** button to enter draw mode, then click and drag over the live preview canvas to mark regions.
+3. Adjust blur strength with the **Blur px** slider.
+4. Remove individual regions using their red delete (`X`) buttons.
 
 ---
 
@@ -50,17 +51,23 @@ A lightweight, browser-based tool for applying text watermarks to images, blurri
 
 | Setting | Default | Description |
 |---|---|---|
-| Layout Mode | Tiled Grid | Tiled repeating pattern layout or single centered asset instance |
-| Convert to BW | `Off` | Strips chrominance details out of source images to render greyscale |
-| Resize (%) | `100` | Adjusts absolute pixel matrix scale dimensions safely |
-| Blur Strength | `15px` | Radial blur strength footprint applied directly inside drawn regions |
-| Text Phrase | `COPY` | The signature watermark value string |
-| Font Size | `30` | Typographical scaling factor footprint size |
-| Opacity | `0.5` | Alphachannel density threshold parameter (0 = invisible, 1 = solid) |
-| Rotation | `-45°` | Radial positioning matrix angle tracking factor degrees |
-| Wrap At (px) | `200` | Bounding constraints forcing multi-line breaks (0 turns wrapping off) |
-| Output Format | `image/webp` | Selection handler: WebP, PNG, JPG, AVIF, or Document PDF format |
-| Quality | `85%` | Compression ratio slider applicable to lossy targets (WebP/JPG/AVIF) |
+| Layout Mode | Tiled | Tiled repeating pattern or single centered asset |
+| AutoFit | `On` | Automatically adjusts gap to prevent watermark tile overlap |
+| B&W | `Off` | Converts source image to grayscale before watermarking |
+| Resize (%) | `100` | Scales source image dimensions before watermark rendering |
+| Text Phrase | `COPY` | The watermark text string |
+| Font | `Sans-Serif` | Typeface applied to the watermark |
+| Size | `30` | Font size in pixels |
+| Color | `#c0c0c0` | Fill color of the watermark text |
+| Opacity | `0.5` | Fill transparency (0 = invisible, 1 = solid) |
+| Rotation | `-45°` | Watermark angle in degrees |
+| Wrap px | `200` | Line-wrap threshold in pixels (0 disables wrapping) |
+| St. Width | `1` | Stroke outline width in pixels |
+| St. Color | `#000000` | Stroke outline color |
+| St. Opacity | `1` | Stroke outline transparency |
+| Blur px | `25` | Gaussian blur strength applied inside censor regions |
+| Output Format | `image/webp` | Export format: WebP, PNG, JPG, AVIF, or PDF |
+| Quality | `85%` | Compression ratio for lossy formats (WebP, JPG, AVIF) |
 
 ---
 
@@ -68,11 +75,11 @@ A lightweight, browser-based tool for applying text watermarks to images, blurri
 
 This single-page client app works entirely on the frontend without server-side processing. It builds atop standard browser Canvas interfaces and integrates external modules via scripts:
 - **Bootstrap 5.3.3 & Icons** — UI presentation shell styling.
-- **JSZip 3.10.1** — Client-side bulk processing multi-file compression packaging.
-- **pdf-lib 1.17.1** — Vector context generation wrappers converting layout configurations to production PDFs.
+- **JSZip 3.10.1** — Client-side multi-file compression and ZIP packaging.
+- **pdf-lib 1.17.1** — Vector context generation converting canvas output to production PDFs.
 
 ---
 
 ## Persistence
 
-Settings save automatically to `localStorage` under the key `wmw_config` every time an entry fields changes. To restore configurations cleanly back to factory states, hit the red **🗑 Clear saved config** utility inside the navigation navbar header.
+Settings save automatically to `localStorage` under the key `wmw_config` every time an input field changes. To restore all settings to factory defaults, click the red **🗑 Clear saved config** button in the navigation bar.

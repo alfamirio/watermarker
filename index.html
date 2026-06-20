@@ -96,13 +96,23 @@
         }
         .censor-region-del:hover { background: #b91c1c; }
 
+        /* Section labels */
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #6c757d;
+            margin-bottom: 0.4rem;
+        }
+
         /* Drag & drop */
         #dropZone {
-            border: 2px dashed #495057;
+            border: 2px dashed #344154;
             border-radius: 8px;
-            padding: 12px;
+            padding: 8px 10px 6px;
             transition: border-color 0.15s, background-color 0.15s;
-            cursor: pointer;
+            cursor: default;
         }
         #dropZone:hover { border-color: #0dcaf0; }
         #dropZone.drag-over {
@@ -145,56 +155,19 @@
                     <div class="card-header panel-header py-2">
                         <h6 class="card-title mb-0 text-info text-uppercase tracking-wider fw-bold small"><i class="bi bi-sliders me-2"></i>1. Setup Parameters</h6>
                     </div>
-                    <div class="card-body flex-grow-1 py-2">
-                        <div class="mb-2">
-                            <label class="form-label text-light fw-semibold small mb-1 d-flex align-items-center gap-2">
-                                Source Image(s) (Optional)
-                                <span id="batchBadge" class="badge bg-info text-dark d-none" style="font-size:0.65rem;">BATCH</span>
-                            </label>
-                            <div id="dropZone">
-                                <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
-                                <div class="drop-hint"><i class="bi bi-cloud-upload"></i> or drag &amp; drop images here</div>
+                    <div class="card-body flex-grow-1 py-2 px-3">
+
+                        <!-- ── IMAGE ── -->
+                        <p class="section-label">Image</p>
+                        <div id="dropZone" class="mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <label class="form-label text-light fw-semibold small mb-0">
+                                    Source Image(s) <span class="text-secondary fw-normal">(optional)</span>
+                                </label>
+                                <span id="batchBadge" class="badge bg-info text-dark d-none" style="font-size:0.6rem;">BATCH</span>
                             </div>
-                        </div>
-                        <div id="grayscaleBox" class="d-none row g-2 mb-2">
-                            <div class="col-3">
-                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="grayscale">Convert to BW</label>
-                                <div class="d-flex align-items-center gap-2" style="height: 31px;">
-                                    <div class="form-check form-switch ps-0 m-0">
-                                        <input type="checkbox" id="grayscale" class="form-check-input ms-0 mt-0" role="switch">
-                                    </div>
-                                    <label class="text-light small mb-0" for="grayscale">On</label>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <label class="form-label text-light fw-semibold small mb-1" title="Resizes the source image before watermarking. 100 = original size.">Resize (%)</label>
-                                <input type="number" id="resizePct" value="100" min="1" max="500" class="form-control bg-dark text-light border-secondary form-control-sm">
-                            </div>
-                        </div>
-                        <div id="censorBox" class="d-none border-top border-secondary pt-2 mb-2">
-                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                <label class="form-label text-light fw-semibold small mb-0"><i class="bi bi-eye-slash me-1"></i>Censor Regions</label>
-                                <span id="censorCount" class="badge bg-secondary" style="font-size:0.65rem;">0 region(s)</span>
-                            </div>
-                            <div class="row g-2 align-items-end">
-                                <div class="col-3">
-                                    <button id="censorDrawToggle" type="button" class="btn btn-sm btn-outline-warning w-100 fw-medium px-1">
-                                        <i class="bi bi-pencil-square"></i> <span id="censorDrawToggleLabel">Draw</span>
-                                    </button>
-                                </div>
-                                <div class="col-3">
-                                    <button id="censorClearBtn" type="button" class="btn btn-sm btn-outline-secondary w-100 px-1" title="Clear regions on this image">
-                                        <i class="bi bi-eraser"></i> Clear
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label text-light fw-semibold small d-flex justify-content-between mb-1">
-                                        <span>Blur Strength</span>
-                                        <span id="censorBlurVal" class="text-info fw-bold">15px</span>
-                                    </label>
-                                    <input type="range" id="censorBlur" min="2" max="50" value="15" class="form-range">
-                                </div>
-                            </div>
+                            <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
+                            <div class="drop-hint"><i class="bi bi-cloud-upload"></i> or drag &amp; drop images here</div>
                         </div>
                         <div id="batchProgress" class="d-none mb-2">
                             <div class="progress" style="height:6px;">
@@ -203,19 +176,71 @@
                             <div id="batchProgressLabel" class="text-secondary small mt-1 text-center">0 / 0</div>
                         </div>
 
+                        <!-- ── LAYOUT ── -->
+                        <p class="section-label border-top border-secondary pt-2 mt-1">Layout</p>
                         <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Layout Mode</label>
+                            <div class="col-4">
+                                <label class="form-label text-light fw-semibold small mb-1">Mode</label>
                                 <div class="btn-group w-100" role="group">
                                     <input type="radio" class="btn-check" name="layoutMode" id="modeTiled" checked>
                                     <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeTiled" title="Tiled Grid">Tiled</label>
-
                                     <input type="radio" class="btn-check" name="layoutMode" id="modeSingle">
                                     <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeSingle" title="Single Asset">Single</label>
                                 </div>
                             </div>
+                            <div id="autoFitGapBox" class="d-none col-2">
+                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="autoFitGap">AutoFit</label>
+                                <div class="d-flex align-items-center gap-2" style="height:31px;">
+                                    <div class="form-check form-switch ps-0 m-0">
+                                        <input type="checkbox" id="autoFitGap" class="form-check-input ms-0 mt-0" checked role="switch">
+                                    </div>
+                                    <label class="text-light small mb-0" for="autoFitGap" title="Grows gap to avoid tile overlap">On</label>
+                                </div>
+                            </div>
+                            <div id="grayscaleBox" class="d-none col-2">
+                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="grayscale">B&W</label>
+                                <div class="d-flex align-items-center gap-2" style="height:31px;">
+                                    <div class="form-check form-switch ps-0 m-0">
+                                        <input type="checkbox" id="grayscale" class="form-check-input ms-0 mt-0" role="switch">
+                                    </div>
+                                    <label class="text-light small mb-0" for="grayscale">On</label>
+                                </div>
+                            </div>
+                            <div id="resizePctBox" class="d-none col-2">
+                                <label class="form-label text-light fw-semibold small mb-1" title="Resize before watermarking. 100 = original.">Resize %</label>
+                                <input type="number" id="resizePct" value="100" min="1" max="500" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                        </div>
+                        <div id="dimensionsControls" class="d-none">
+                            <div class="row g-2 mb-2">
+                                <div id="gapXBox" class="col-2">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap X</label>
+                                    <input type="number" id="gapX" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="gapYBox" class="col-2">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap Y</label>
+                                    <input type="number" id="gapY" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="widthBox" class="col-2">
+                                    <label class="form-label text-light fw-semibold small mb-1">Width</label>
+                                    <input type="number" id="gridWidth" value="1200" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="heightBox" class="col-2">
+                                    <label class="form-label text-light fw-semibold small mb-1">Height</label>
+                                    <input type="number" id="gridHeight" value="1600" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── TEXT + STROKE ── -->
+                        <p class="section-label border-top border-secondary pt-2 mt-1">Text</p>
+                        <div class="row g-2 mb-2">
                             <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Font Family</label>
+                                <label class="form-label text-light fw-semibold small mb-1">Phrase</label>
+                                <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1">Font</label>
                                 <select id="fontFamily" class="form-select bg-dark text-light border-secondary form-select-sm">
                                     <option value="sans-serif">Sans-Serif</option>
                                     <option value="serif">Serif</option>
@@ -223,71 +248,70 @@
                                     <option value="Impact">Impact</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="row g-2 mb-2">
-                            <div class="col-3">
+                            <div class="col-2">
                                 <label class="form-label text-light fw-semibold small mb-1">Size</label>
                                 <input type="number" id="fontSize" value="30" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-3">
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1">Color</label>
+                                <input type="color" id="color" value="#c0c0c0" class="form-control form-control-color bg-dark border-secondary w-100 p-1 form-control-sm" style="height:31px;">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-end">
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1">Rotate°</label>
+                                <input type="number" id="rotation" value="-45" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1" title="Wrap at this pixel width. 0 = no wrap.">Wrap px</label>
+                                <input type="number" id="wrapWidth" value="200" min="0" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-2">
                                 <label class="form-label text-light fw-semibold small mb-1">Opacity</label>
                                 <input type="number" id="opacity" value="0.5" step="0.1" min="0" max="1" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-3">
-                                <label class="form-label text-light fw-semibold small mb-1">Color</label>
-                                <input type="color" id="color" value="#c0c0c0" class="form-control form-control-color bg-dark border-secondary w-100 p-1 form-control-sm" style="height: 31px;">
+                            <div class="col-2" style="border-left: 1px solid #344154; padding-left: 0.75rem;">
+                                <label class="form-label text-light fw-semibold small mb-1">St. Width</label>
+                                <input type="number" id="strokeWidth" value="1" min="0" max="100" step="1" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-3">
-                                <label class="form-label text-light fw-semibold small mb-1">Rotate</label>
-                                <input type="number" id="rotation" value="-45" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1">St. Color</label>
+                                <input type="color" id="strokeColor" value="#000000" class="form-control form-control-color bg-dark border-secondary w-100 p-1 form-control-sm" style="height:31px;">
                             </div>
-                        </div>
-
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Text Phrase</label>
-                                <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
-                            </div>
-                            <div id="autoFitGapBox" class="d-none col-3">
-                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="autoFitGap">Auto-fit Gap</label>
-                                <div class="d-flex align-items-center gap-2" style="height: 31px;">
-                                    <div class="form-check form-switch ps-0 m-0">
-                                        <input type="checkbox" id="autoFitGap" class="form-check-input ms-0 mt-0" checked role="switch">
-                                    </div>
-                                    <label class="text-light small mb-0" for="autoFitGap" title="Prevents tile overlap by growing the gap to fit the text">On</label>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <label class="form-label text-light fw-semibold small mb-1" title="Wraps text onto multiple lines at this width. 0 = no wrap.">Wrap At (px)</label>
-                                <input type="number" id="wrapWidth" value="200" min="0" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            <div class="col-2">
+                                <label class="form-label text-light fw-semibold small mb-1">St. Opacity</label>
+                                <input type="number" id="strokeOpacity" value="1" step="0.1" min="0" max="1" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
                         </div>
 
-                        <div id="dimensionsControls" class="d-none border-top border-secondary pt-2 mt-1">
-                            <div class="row g-2">
-                                <div id="gapXBox" class="col-3">
-                                    <label class="form-label text-light fw-semibold small mb-1">Gap X</label>
-                                    <input type="number" id="gapX" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                        <!-- ── CENSOR ── -->
+                        <div id="censorBox" class="d-none border-top border-secondary pt-2 mt-1 mb-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto">
+                                    <p class="section-label mb-0">Censor <span id="censorCount" class="badge bg-secondary ms-1" style="font-size:0.6rem;">0</span></p>
                                 </div>
-                                <div id="gapYBox" class="col-3">
-                                    <label class="form-label text-light fw-semibold small mb-1">Gap Y</label>
-                                    <input type="number" id="gapY" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                <div class="col-2">
+                                    <button id="censorDrawToggle" type="button" class="btn btn-sm btn-outline-warning fw-medium w-100">
+                                        <i class="bi bi-pencil-square"></i> <span id="censorDrawToggleLabel">Draw</span>
+                                    </button>
                                 </div>
-                                <div id="widthBox" class="col-3">
-                                    <label class="form-label text-light fw-semibold small mb-1">Width</label>
-                                    <input type="number" id="gridWidth" value="1200" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                <div class="col-1">
+                                    <button id="censorClearBtn" type="button" class="btn btn-sm btn-outline-secondary w-100" title="Clear regions">
+                                        <i class="bi bi-eraser"></i>
+                                    </button>
                                 </div>
-                                <div id="heightBox" class="col-3">
-                                    <label class="form-label text-light fw-semibold small mb-1">Height</label>
-                                    <input type="number" id="gridHeight" value="1600" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                <div class="col-4 d-flex align-items-center gap-2">
+                                    <label class="form-label text-light fw-semibold small mb-0 text-nowrap">Blur px</label>
+                                    <input type="range" id="censorBlur" min="2" max="50" value="25" class="form-range mb-0">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row g-2 border-top border-secondary pt-2 mt-1">
-                            <div id="formatCol" class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Output Format</label>
+                        <!-- ── OUTPUT ── -->
+                        <p class="section-label border-top border-secondary pt-2 mt-1">Output</p>
+                        <div class="row g-2">
+                            <div id="formatCol" class="col-4">
+                                <label class="form-label text-light fw-semibold small mb-1">Format</label>
                                 <select id="outputFormat" class="form-select bg-dark text-light border-secondary form-select-sm">
                                     <option value="image/webp">WebP</option>
                                     <option value="image/png">PNG</option>
@@ -372,7 +396,10 @@
             wrapWidth: '200',
             grayscale: false,
             resizePct: '100',
-            censorBlur: '15'
+            censorBlur: '25',
+            strokeWidth: '1',
+            strokeColor: '#000000',
+            strokeOpacity: '1'
         };
 
         const FORMAT_EXT = {
@@ -435,6 +462,7 @@
         const autoFitGap = document.getElementById('autoFitGap');
         const imageLoader = document.getElementById('imageLoader');
         const grayscaleBox = document.getElementById('grayscaleBox');
+        const resizePctBox = document.getElementById('resizePctBox');
         const grayscale = document.getElementById('grayscale');
         const qualitySettings = document.getElementById('qualitySettings');
         const webpQuality = document.getElementById('webpQuality');
@@ -455,7 +483,6 @@
         const censorDrawToggleLabel = document.getElementById('censorDrawToggleLabel');
         const censorClearBtn = document.getElementById('censorClearBtn');
         const censorBlur = document.getElementById('censorBlur');
-        const censorBlurVal = document.getElementById('censorBlurVal');
         const censorCount = document.getElementById('censorCount');
 
         let censorRegions = [];    // array of arrays of {x,y,w,h} fractions (0-1), indexed per image
@@ -464,7 +491,7 @@
         let censorDragStart = null;
         let censorDragCurrent = null;
 
-        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY', 'wrapWidth', 'resizePct'].reduce((acc, id) => {
+        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY', 'wrapWidth', 'resizePct', 'strokeColor', 'strokeOpacity', 'strokeWidth'].reduce((acc, id) => {
             acc[id] = document.getElementById(id);
             return acc;
         }, {});
@@ -498,7 +525,6 @@
             autoFitGap.checked = cfg.autoFitGap !== undefined ? cfg.autoFitGap : DEFAULTS.autoFitGap;
             grayscale.checked = cfg.grayscale !== undefined ? cfg.grayscale : DEFAULTS.grayscale;
             censorBlur.value = cfg.censorBlur || DEFAULTS.censorBlur;
-            censorBlurVal.textContent = `${censorBlur.value}px`;
 
             currentMode = cfg.layoutMode || 'tiled';
             if (currentMode === 'tiled') {
@@ -520,7 +546,6 @@
             autoFitGap.checked = DEFAULTS.autoFitGap;
             grayscale.checked = DEFAULTS.grayscale;
             censorBlur.value = DEFAULTS.censorBlur;
-            censorBlurVal.textContent = `${DEFAULTS.censorBlur}px`;
             currentMode = DEFAULTS.layoutMode;
             modeTiledRadio.checked = true;
             modeSingleRadio.checked = false;
@@ -543,6 +568,8 @@
             qualityVal.textContent = `${e.target.value}%`;
             saveConfig();
         });
+
+        const strokeWidth = document.getElementById('strokeWidth');
 
         outputFormat.addEventListener('change', () => {
             saveConfig();
@@ -703,6 +730,7 @@
             document.getElementById('batchBadge').classList.toggle('d-none', !isBatch);
             updateFormatUI();
             grayscaleBox.classList.toggle('d-none', !uploadedImage);
+            resizePctBox.classList.toggle('d-none', !uploadedImage);
             censorBox.classList.toggle('d-none', !uploadedImage);
             if (!uploadedImage && censorDrawMode) setCensorDrawMode(false);
 
@@ -805,7 +833,7 @@
 
         function updateCensorCount() {
             const n = getCurrentRegions().length;
-            censorCount.textContent = `${n} region${n === 1 ? '' : 's'}`;
+            censorCount.textContent = `${n}`;
         }
 
         // Redraws the rectangle markers (and delete buttons) for the
@@ -858,7 +886,6 @@
         });
 
         censorBlur.addEventListener('input', () => {
-            censorBlurVal.textContent = `${censorBlur.value}px`;
             saveConfig();
             updateWatermark();
         });
@@ -942,7 +969,10 @@
                 format: outputFormat.value,
                 grayscale: grayscale.checked,
                 resizePct: parseInt(inputs.resizePct.value) || 100,
-                censorBlur: parseInt(censorBlur.value) || 0
+                censorBlur: parseInt(censorBlur.value) || 0,
+                strokeWidth: parseInt(inputs.strokeWidth.value) || 0,
+                strokeColor: inputs.strokeColor.value,
+                strokeOpacity: parseFloat(inputs.strokeOpacity.value) ?? 1
             };
         }
 
@@ -992,11 +1022,11 @@
             offCtx.filter = 'none';
             applyCensorRegions(offCtx, imgEl, offCanvas.width, offCanvas.height, regions || [], params.censorBlur || 0, params.grayscale);
             if (params.mode === 'single') {
-                drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth);
+                drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth, params.strokeWidth, params.strokeColor, params.strokeOpacity);
             } else {
                 for (let x = params.gapX / 2; x < offCanvas.width + params.gapX; x += params.gapX) {
                     for (let y = params.gapY / 2; y < offCanvas.height + params.gapY; y += params.gapY) {
-                        drawWatermarkInstance(offCtx, x, y, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth);
+                        drawWatermarkInstance(offCtx, x, y, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth, params.strokeWidth, params.strokeColor, params.strokeOpacity);
                     }
                 }
             }
@@ -1117,18 +1147,27 @@
             return lines;
         }
 
-        function drawWatermarkInstance(context, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth) {
+        function drawWatermarkInstance(context, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth, strokeW, strokeCol, strokeOp) {
             context.save();
             context.translate(x, y);
             context.rotate(rotation);
             context.font = `${fontSize}px ${fontFamily}`;
-            context.fillStyle = color;
-            context.globalAlpha = opacity;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             const lines = wrapText(context, text, fontSize, fontFamily, wrapWidth);
             const lineHeight = fontSize * 1.2;
             const startY = -((lines.length - 1) * lineHeight) / 2;
+            if (strokeW && strokeW > 0) {
+                context.globalAlpha = (strokeOp !== undefined ? strokeOp : 1) * opacity;
+                context.strokeStyle = strokeCol || '#000000';
+                context.lineWidth = strokeW * 2;
+                context.lineJoin = 'round';
+                lines.forEach((line, i) => {
+                    context.strokeText(line, 0, startY + i * lineHeight);
+                });
+            }
+            context.globalAlpha = opacity;
+            context.fillStyle = color;
             lines.forEach((line, i) => {
                 context.fillText(line, 0, startY + i * lineHeight);
             });
@@ -1264,14 +1303,14 @@
             }
 
             if (currentMode === 'single') {
-                drawWatermarkInstance(ctx, canvas.width / 2, canvas.height / 2, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth);
+                drawWatermarkInstance(ctx, canvas.width / 2, canvas.height / 2, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth, parseInt(inputs.strokeWidth.value) || 0, inputs.strokeColor.value, parseFloat(inputs.strokeOpacity.value) ?? 1);
             } else {
                 const rawGapX = parseInt(inputs.gapX.value) || 150;
                 const rawGapY = parseInt(inputs.gapY.value) || 150;
                 const { gapX, gapY } = getEffectiveGap(text, fontSize, fontFamily, rotation, rawGapX, rawGapY, autoFitGap.checked, wrapWidth);
                 for (let x = gapX / 2; x < canvas.width + gapX; x += gapX) {
                     for (let y = gapY / 2; y < canvas.height + gapY; y += gapY) {
-                        drawWatermarkInstance(ctx, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth);
+                        drawWatermarkInstance(ctx, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth, parseInt(inputs.strokeWidth.value) || 0, inputs.strokeColor.value, parseFloat(inputs.strokeOpacity.value) ?? 1);
                     }
                 }
             }
