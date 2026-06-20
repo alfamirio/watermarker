@@ -95,6 +95,32 @@
             padding: 0;
         }
         .censor-region-del:hover { background: #b91c1c; }
+
+        /* Drag & drop */
+        #dropZone {
+            border: 2px dashed #495057;
+            border-radius: 8px;
+            padding: 12px;
+            transition: border-color 0.15s, background-color 0.15s;
+            cursor: pointer;
+        }
+        #dropZone:hover { border-color: #0dcaf0; }
+        #dropZone.drag-over {
+            border-color: #0dcaf0 !important;
+            background-color: rgba(13, 202, 240, 0.08) !important;
+        }
+        #dropZone .drop-hint {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #canvasWrap.drag-over-canvas {
+            outline: 3px dashed #0dcaf0;
+            outline-offset: -3px;
+        }
     </style>
 </head>
 <body class="bg-dark text-light">
@@ -125,7 +151,10 @@
                                 Source Image(s) (Optional)
                                 <span id="batchBadge" class="badge bg-info text-dark d-none" style="font-size:0.65rem;">BATCH</span>
                             </label>
-                            <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
+                            <div id="dropZone">
+                                <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
+                                <div class="drop-hint"><i class="bi bi-cloud-upload"></i> or drag &amp; drop images here</div>
+                            </div>
                         </div>
                         <div id="grayscaleBox" class="d-none row g-2 mb-2">
                             <div class="col-3">
@@ -1300,6 +1329,79 @@
         loadConfig();
         toggleControlsVisibility();
         updateWatermark();
+
+        // --- Drag & drop ---
+        function handleDroppedFiles(files) {
+            // Reuse the existing imageLoader change logic by synthesizing a FileList-like object
+            // The cleanest approach: dispatch a synthetic event via DataTransfer
+            const dt = new DataTransfer();
+            files.forEach(f => dt.items.add(f));
+            imageLoader.files = dt.files;
+            imageLoader.dispatchEvent(new Event('change'));
+        }
+
+        // Drop zone (around the file input in the sidebar)
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('click', (e) => {
+            // Clicking the drop zone (but not the input itself) triggers the file picker
+            if (e.target !== imageLoader) imageLoader.click();
+        });
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length) handleDroppedFiles(files);
+        });
+
+        // Canvas / preview area drop (large target)
+        canvasWrap.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!censorDrawMode) canvasWrap.classList.add('drag-over-canvas');
+        });
+
+        canvasWrap.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        canvasWrap.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Only remove when leaving the wrap itself, not a child
+            if (!canvasWrap.contains(e.relatedTarget)) {
+                canvasWrap.classList.remove('drag-over-canvas');
+            }
+        });
+
+        canvasWrap.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            canvasWrap.classList.remove('drag-over-canvas');
+            if (censorDrawMode) return; // don't interfere with censor draw mode
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length) handleDroppedFiles(files);
+        });
+
+        // Prevent browser from opening images dragged anywhere else on the page
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
     </script>
 </body>
 </html>
