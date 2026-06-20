@@ -86,6 +86,21 @@
                             </label>
                             <input type="file" id="imageLoader" accept="image/jpeg, image/png, image/webp, image/avif" multiple class="form-control bg-dark text-light border-secondary form-control-sm">
                         </div>
+                        <div id="grayscaleBox" class="d-none row g-2 mb-2">
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="grayscale">Convert to BW</label>
+                                <div class="d-flex align-items-center gap-2" style="height: 31px;">
+                                    <div class="form-check form-switch ps-0 m-0">
+                                        <input type="checkbox" id="grayscale" class="form-check-input ms-0 mt-0" role="switch">
+                                    </div>
+                                    <label class="text-light small mb-0" for="grayscale">On</label>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1" title="Resizes the source image before watermarking. 100 = original size.">Resize (%)</label>
+                                <input type="number" id="resizePct" value="100" min="1" max="500" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                        </div>
                         <div id="batchProgress" class="d-none mb-2">
                             <div class="progress" style="height:6px;">
                                 <div id="batchProgressBar" class="progress-bar bg-info" role="progressbar" style="width:0%"></div>
@@ -135,19 +150,23 @@
                         </div>
 
                         <div class="row g-2 mb-2">
-                            <div class="col-8">
+                            <div class="col-6">
                                 <label class="form-label text-light fw-semibold small mb-1">Text Phrase</label>
                                 <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-4">
+                            <div id="autoFitGapBox" class="d-none col-3">
+                                <label class="form-label text-light fw-semibold small mb-1 d-block" for="autoFitGap">Auto-fit Gap</label>
+                                <div class="d-flex align-items-center gap-2" style="height: 31px;">
+                                    <div class="form-check form-switch ps-0 m-0">
+                                        <input type="checkbox" id="autoFitGap" class="form-check-input ms-0 mt-0" checked role="switch">
+                                    </div>
+                                    <label class="text-light small mb-0" for="autoFitGap" title="Prevents tile overlap by growing the gap to fit the text">On</label>
+                                </div>
+                            </div>
+                            <div class="col-3">
                                 <label class="form-label text-light fw-semibold small mb-1" title="Wraps text onto multiple lines at this width. 0 = no wrap.">Wrap At (px)</label>
                                 <input type="number" id="wrapWidth" value="200" min="0" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                        </div>
-
-                        <div id="autoFitGapBox" class="d-none form-check mb-2">
-                            <input type="checkbox" id="autoFitGap" class="form-check-input" checked>
-                            <label class="form-check-label text-light small" for="autoFitGap">Auto-fit gap to text (prevents overlap)</label>
                         </div>
 
                         <div id="dimensionsControls" class="d-none border-top border-secondary pt-2 mt-1">
@@ -252,7 +271,9 @@
             layoutMode: 'tiled',
             outputFormat: 'image/webp',
             autoFitGap: true,
-            wrapWidth: '200'
+            wrapWidth: '200',
+            grayscale: false,
+            resizePct: '100'
         };
 
         const FORMAT_EXT = {
@@ -313,6 +334,8 @@
         const autoFitGapBox = document.getElementById('autoFitGapBox');
         const autoFitGap = document.getElementById('autoFitGap');
         const imageLoader = document.getElementById('imageLoader');
+        const grayscaleBox = document.getElementById('grayscaleBox');
+        const grayscale = document.getElementById('grayscale');
         const qualitySettings = document.getElementById('qualitySettings');
         const webpQuality = document.getElementById('webpQuality');
         const qualityVal = document.getElementById('qualityVal');
@@ -324,7 +347,7 @@
         const previewImageInfoText = document.getElementById('previewImageInfoText');
         const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
 
-        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY', 'wrapWidth'].reduce((acc, id) => {
+        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY', 'wrapWidth', 'resizePct'].reduce((acc, id) => {
             acc[id] = document.getElementById(id);
             return acc;
         }, {});
@@ -337,6 +360,7 @@
             cfg.layoutMode = currentMode;
             cfg.outputFormat = outputFormat.value;
             cfg.autoFitGap = autoFitGap.checked;
+            cfg.grayscale = grayscale.checked;
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch(e) {}
         }
 
@@ -354,6 +378,7 @@
             qualityVal.textContent = `${cfg.webpQuality}%`;
             outputFormat.value = cfg.outputFormat || DEFAULTS.outputFormat;
             autoFitGap.checked = cfg.autoFitGap !== undefined ? cfg.autoFitGap : DEFAULTS.autoFitGap;
+            grayscale.checked = cfg.grayscale !== undefined ? cfg.grayscale : DEFAULTS.grayscale;
 
             currentMode = cfg.layoutMode || 'tiled';
             if (currentMode === 'tiled') {
@@ -373,6 +398,7 @@
             qualityVal.textContent = `${DEFAULTS.webpQuality}%`;
             outputFormat.value = DEFAULTS.outputFormat;
             autoFitGap.checked = DEFAULTS.autoFitGap;
+            grayscale.checked = DEFAULTS.grayscale;
             currentMode = DEFAULTS.layoutMode;
             modeTiledRadio.checked = true;
             modeSingleRadio.checked = false;
@@ -400,6 +426,11 @@
         });
 
         autoFitGap.addEventListener('change', () => {
+            saveConfig();
+            updateWatermark();
+        });
+
+        grayscale.addEventListener('change', () => {
             saveConfig();
             updateWatermark();
         });
@@ -541,6 +572,7 @@
             const isBatch = batchFiles.length > 1;
             document.getElementById('batchBadge').classList.toggle('d-none', !isBatch);
             updateFormatUI();
+            grayscaleBox.classList.toggle('d-none', !uploadedImage);
 
             if (uploadedImage) {
                 widthBox.classList.add('d-none');
@@ -602,7 +634,9 @@
                 gapY,
                 qualityFactor: parseFloat(webpQuality.value) / 100,
                 mode: currentMode,
-                format: outputFormat.value
+                format: outputFormat.value,
+                grayscale: grayscale.checked,
+                resizePct: parseInt(inputs.resizePct.value) || 100
             };
         }
 
@@ -622,11 +656,14 @@
         }
 
         function applyWatermarkToImage(imgEl, params) {
+            const scale = (params.resizePct || 100) / 100;
             const offCanvas = document.createElement('canvas');
-            offCanvas.width = imgEl.width;
-            offCanvas.height = imgEl.height;
+            offCanvas.width = Math.max(1, Math.round(imgEl.width * scale));
+            offCanvas.height = Math.max(1, Math.round(imgEl.height * scale));
             const offCtx = offCanvas.getContext('2d');
-            offCtx.drawImage(imgEl, 0, 0);
+            offCtx.filter = params.grayscale ? 'grayscale(100%)' : 'none';
+            offCtx.drawImage(imgEl, 0, 0, offCanvas.width, offCanvas.height);
+            offCtx.filter = 'none';
             if (params.mode === 'single') {
                 drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth);
             } else {
@@ -837,8 +874,8 @@
                 downloadCurrentBtn.classList.remove('d-flex');
                 return;
             }
-            const w = uploadedImage.width;
-            const h = uploadedImage.height;
+            const w = canvas.width;
+            const h = canvas.height;
             const ratio = (w / h).toFixed(2);
             const isBatch = batchFiles.length > 1;
             const file = isBatch ? batchFiles[previewIdx] : uploadedFile;
@@ -854,7 +891,8 @@
             const sizeLabel = formatFileSize(file ? file.size : null);
             const textParts = [];
             if (name) textParts.push(name);
-            textParts.push(`${w}×${h} (${ratio})`);
+            const resized = w !== uploadedImage.width || h !== uploadedImage.height;
+            textParts.push(resized ? `${w}×${h} (${ratio}) - resized from ${uploadedImage.width}×${uploadedImage.height}` : `${w}×${h} (${ratio})`);
             if (sizeLabel) textParts.push(sizeLabel);
             previewImageInfoText.textContent = textParts.join(' - ');
 
@@ -873,10 +911,12 @@
             const rotation = (parseInt(inputs.rotation.value) || 0) * Math.PI / 180;
             const fontFamily = inputs.fontFamily.value;
             const wrapWidth = parseInt(inputs.wrapWidth.value) || 0;
+            const resizePct = uploadedImage ? (parseInt(inputs.resizePct.value) || 100) : 100;
+            const scale = resizePct / 100;
 
             if (uploadedImage) {
-                canvas.width = uploadedImage.width;
-                canvas.height = uploadedImage.height;
+                canvas.width = Math.max(1, Math.round(uploadedImage.width * scale));
+                canvas.height = Math.max(1, Math.round(uploadedImage.height * scale));
             } else if (currentMode === 'single') {
                 const box = getRotatedTextBox(text, fontSize, fontFamily, rotation, wrapWidth);
                 const padding = 60;
@@ -889,7 +929,9 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (uploadedImage) {
-                ctx.drawImage(uploadedImage, 0, 0);
+                ctx.filter = grayscale.checked ? 'grayscale(100%)' : 'none';
+                ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+                ctx.filter = 'none';
             }
 
             if (currentMode === 'single') {
