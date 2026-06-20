@@ -198,6 +198,7 @@
                                     <option value="image/png">PNG</option>
                                     <option value="image/jpeg">JPG</option>
                                     <option value="image/avif">AVIF</option>
+                                    <option value="application/pdf">PDF</option>
                                 </select>
                             </div>
                             <div id="qualitySettings" class="d-none col-6">
@@ -252,6 +253,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     <script>
         const STORAGE_KEY = 'wmw_config';
@@ -280,13 +282,14 @@
             'image/webp': 'webp',
             'image/png': 'png',
             'image/jpeg': 'jpg',
-            'image/avif': 'avif'
+            'image/avif': 'avif',
+            'application/pdf': 'pdf'
         };
 
         // Formats that make sense with no source image (pure text/tile watermark).
         // JPG has no alpha channel so a transparent watermark would get a baked-in
         // black background - we exclude it from this list.
-        const NO_IMAGE_FORMATS = ['image/webp', 'image/png', 'image/avif'];
+        const NO_IMAGE_FORMATS = ['image/webp', 'image/png', 'image/avif', 'application/pdf'];
 
         let avifSupported = null; // cached after first feature-detect
         function checkAvifSupport() {
@@ -487,6 +490,8 @@
                 hint = 'JPG requires a source image (no transparency support).';
             } else if (selected === 'image/png') {
                 hint = 'PNG is lossless - the quality slider does not apply.';
+            } else if (selected === 'application/pdf') {
+                hint = 'Exports a single-page PDF sized to the watermarked image.';
             } else if (selected === 'image/avif') {
                 hint = avifSupported
                     ? 'AVIF supported in this browser.'
@@ -640,7 +645,27 @@
             };
         }
 
-        function canvasToDataURL(cnv, format, qualityFactor) {
+        async function canvasToPdfDataURL(cnv) {
+            // PDF page sized exactly to the canvas (in points, 1px = 1pt - close
+            // enough for a watermark export, not a print-precision document).
+            const pngDataUrl = cnv.toDataURL('image/png');
+            const pngBytes = new Uint8Array(await (await fetch(pngDataUrl)).arrayBuffer());
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            const pngImage = await pdfDoc.embedPng(pngBytes);
+            const page = pdfDoc.addPage([cnv.width, cnv.height]);
+            page.drawImage(pngImage, { x: 0, y: 0, width: cnv.width, height: cnv.height });
+            const pdfBytes = await pdfDoc.save();
+            // Convert in chunks to avoid call-stack limits on large files.
+            const chunkSize = 0x8000;
+            let binary = '';
+            for (let i = 0; i < pdfBytes.length; i += chunkSize) {
+                binary += String.fromCharCode.apply(null, pdfBytes.subarray(i, i + chunkSize));
+            }
+            return 'data:application/pdf;base64,' + btoa(binary);
+        }
+
+        async function canvasToDataURL(cnv, format, qualityFactor) {
+            if (format === 'application/pdf') return canvasToPdfDataURL(cnv);
             if (format === 'image/png') return cnv.toDataURL('image/png');
             const dataUrl = cnv.toDataURL(format, qualityFactor);
             // Guard: if AVIF was requested but the browser silently encoded
@@ -655,7 +680,7 @@
             return dataUrl;
         }
 
-        function applyWatermarkToImage(imgEl, params) {
+        async function applyWatermarkToImage(imgEl, params) {
             const scale = (params.resizePct || 100) / 100;
             const offCanvas = document.createElement('canvas');
             offCanvas.width = Math.max(1, Math.round(imgEl.width * scale));
@@ -673,7 +698,7 @@
                     }
                 }
             }
-            return canvasToDataURL(offCanvas, params.format, params.qualityFactor);
+            return await canvasToDataURL(offCanvas, params.format, params.qualityFactor);
         }
 
         function loadImageFile(file) {
@@ -708,7 +733,7 @@
                     batchProgressBar.style.width = `${Math.round(((i + 1) / batchFiles.length) * 100)}%`;
                     try {
                         const img = await loadImageFile(f);
-                        const dataUrl = applyWatermarkToImage(img, params);
+                        const dataUrl = await applyWatermarkToImage(img, params);
                         const base64 = dataUrl.split(',')[1];
                         const outName = f.name.replace(/\.[^.]+$/, '') + `_${wmText}_wm.${ext}`;
                         folder.file(outName, base64, { base64: true });
@@ -733,7 +758,7 @@
                 const ext = FORMAT_EXT[format] || 'webp';
                 const qualityFactor = parseFloat(webpQuality.value) / 100;
                 try {
-                    link.href = canvasToDataURL(canvas, format, qualityFactor);
+                    link.href = await canvasToDataURL(canvas, format, qualityFactor);
                 } catch (err) {
                     alert(err.message);
                     return;
@@ -743,7 +768,7 @@
             }
         });
 
-        downloadCurrentBtn.addEventListener('click', () => {
+        downloadCurrentBtn.addEventListener('click', async () => {
             if (!uploadedImage) return;
             const isBatch = batchFiles.length > 1;
             const currentFile = isBatch ? batchFiles[previewIdx] : uploadedFile;
@@ -756,7 +781,7 @@
             const qualityFactor = parseFloat(webpQuality.value) / 100;
             const link = document.createElement('a');
             try {
-                link.href = canvasToDataURL(canvas, format, qualityFactor);
+                link.href = await canvasToDataURL(canvas, format, qualityFactor);
             } catch (err) {
                 alert(err.message);
                 return;
