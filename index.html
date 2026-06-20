@@ -75,11 +75,11 @@
             
             <div class="col-12 col-xl-4 col-lg-5">
                 <div class="card panel-card border-secondary shadow-sm h-100 d-flex flex-column sticky-panel">
-                    <div class="card-header panel-header py-3">
+                    <div class="card-header panel-header py-2">
                         <h6 class="card-title mb-0 text-info text-uppercase tracking-wider fw-bold small"><i class="bi bi-sliders me-2"></i>1. Setup Parameters</h6>
                     </div>
-                    <div class="card-body flex-grow-1 py-3">
-                        <div class="mb-3">
+                    <div class="card-body flex-grow-1 py-2">
+                        <div class="mb-2">
                             <label class="form-label text-light fw-semibold small mb-1 d-flex align-items-center gap-2">
                                 Source Image(s) (Optional)
                                 <span id="batchBadge" class="badge bg-info text-dark d-none" style="font-size:0.65rem;">BATCH</span>
@@ -93,82 +93,106 @@
                             <div id="batchProgressLabel" class="text-secondary small mt-1 text-center">0 / 0</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label text-light fw-semibold small mb-1">Layout Mode</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="layoutMode" id="modeTiled" checked>
-                                <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeTiled">Tiled Grid</label>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Layout Mode</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="layoutMode" id="modeTiled" checked>
+                                    <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeTiled" title="Tiled Grid">Tiled</label>
 
-                                <input type="radio" class="btn-check" name="layoutMode" id="modeSingle">
-                                <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeSingle">Single Asset</label>
+                                    <input type="radio" class="btn-check" name="layoutMode" id="modeSingle">
+                                    <label class="btn btn-outline-info btn-sm w-50 fw-medium" for="modeSingle" title="Single Asset">Single</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Font Family</label>
+                                <select id="fontFamily" class="form-select bg-dark text-light border-secondary form-select-sm">
+                                    <option value="sans-serif">Sans-Serif</option>
+                                    <option value="serif">Serif</option>
+                                    <option value="monospace">Monospace</option>
+                                    <option value="Impact">Impact</option>
+                                </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label text-light fw-semibold small mb-1">Text Phrase</label>
-                            <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
-                        </div>
-
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Font Size (px)</label>
-                                <input type="number" id="fontSize" value="50" class="form-control bg-dark text-light border-secondary form-control-sm">
+                        <div class="row g-2 mb-2">
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1">Size</label>
+                                <input type="number" id="fontSize" value="30" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Opacity (0-1)</label>
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1">Opacity</label>
                                 <input type="number" id="opacity" value="0.5" step="0.1" min="0" max="1" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Text Color</label>
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1">Color</label>
                                 <input type="color" id="color" value="#c0c0c0" class="form-control form-control-color bg-dark border-secondary w-100 p-1 form-control-sm" style="height: 31px;">
                             </div>
-                            <div class="col-6">
-                                <label class="form-label text-light fw-semibold small mb-1">Rotation (deg)</label>
+                            <div class="col-3">
+                                <label class="form-label text-light fw-semibold small mb-1">Rotate</label>
                                 <input type="number" id="rotation" value="-45" class="form-control bg-dark text-light border-secondary form-control-sm">
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label text-light fw-semibold small mb-1">Font Family</label>
-                            <select id="fontFamily" class="form-select bg-dark text-light border-secondary form-select-sm">
-                                <option value="sans-serif">Sans-Serif</option>
-                                <option value="serif">Serif</option>
-                                <option value="monospace">Monospace</option>
-                                <option value="Impact">Impact</option>
-                            </select>
+                        <div class="row g-2 mb-2">
+                            <div class="col-8">
+                                <label class="form-label text-light fw-semibold small mb-1">Text Phrase</label>
+                                <input type="text" id="text" value="COPY" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-light fw-semibold small mb-1" title="Wraps text onto multiple lines at this width. 0 = no wrap.">Wrap At (px)</label>
+                                <input type="number" id="wrapWidth" value="200" min="0" class="form-control bg-dark text-light border-secondary form-control-sm">
+                            </div>
                         </div>
 
-                        <div id="dimensionsControls" class="d-none border-top border-secondary pt-2 mt-2">
+                        <div id="autoFitGapBox" class="d-none form-check mb-2">
+                            <input type="checkbox" id="autoFitGap" class="form-check-input" checked>
+                            <label class="form-check-label text-light small" for="autoFitGap">Auto-fit gap to text (prevents overlap)</label>
+                        </div>
+
+                        <div id="dimensionsControls" class="d-none border-top border-secondary pt-2 mt-1">
                             <div class="row g-2">
-                                <div id="widthBox" class="col-6">
-                                    <label class="form-label text-light fw-semibold small mb-1">Canvas Width</label>
-                                    <input type="number" id="gridWidth" value="1200" class="form-control bg-dark text-light border-secondary form-control-sm">
-                                </div>
-                                <div id="heightBox" class="col-6">
-                                    <label class="form-label text-light fw-semibold small mb-1">Canvas Height</label>
-                                    <input type="number" id="gridHeight" value="1600" class="form-control bg-dark text-light border-secondary form-control-sm">
-                                </div>
-                                <div id="gapXBox" class="col-6">
-                                    <label class="form-label text-light fw-semibold small mb-1">Gap X (px)</label>
+                                <div id="gapXBox" class="col-3">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap X</label>
                                     <input type="number" id="gapX" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
                                 </div>
-                                <div id="gapYBox" class="col-6">
-                                    <label class="form-label text-light fw-semibold small mb-1">Gap Y (px)</label>
+                                <div id="gapYBox" class="col-3">
+                                    <label class="form-label text-light fw-semibold small mb-1">Gap Y</label>
                                     <input type="number" id="gapY" value="150" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="widthBox" class="col-3">
+                                    <label class="form-label text-light fw-semibold small mb-1">Width</label>
+                                    <input type="number" id="gridWidth" value="1200" class="form-control bg-dark text-light border-secondary form-control-sm">
+                                </div>
+                                <div id="heightBox" class="col-3">
+                                    <label class="form-label text-light fw-semibold small mb-1">Height</label>
+                                    <input type="number" id="gridHeight" value="1600" class="form-control bg-dark text-light border-secondary form-control-sm">
                                 </div>
                             </div>
                         </div>
 
-                        <div id="qualitySettings" class="d-none border-top border-secondary pt-2 mt-2">
-                            <label class="form-label text-light fw-semibold small d-flex justify-content-between mb-1">
-                                <span>WebP Render Quality</span>
-                                <span id="qualityVal" class="text-info fw-bold">85%</span>
-                            </label>
-                            <input type="range" id="webpQuality" min="1" max="100" value="85" class="form-range">
+                        <div class="row g-2 border-top border-secondary pt-2 mt-1">
+                            <div id="formatCol" class="col-6">
+                                <label class="form-label text-light fw-semibold small mb-1">Output Format</label>
+                                <select id="outputFormat" class="form-select bg-dark text-light border-secondary form-select-sm">
+                                    <option value="image/webp">WebP</option>
+                                    <option value="image/png">PNG</option>
+                                    <option value="image/jpeg">JPG</option>
+                                    <option value="image/avif">AVIF</option>
+                                </select>
+                            </div>
+                            <div id="qualitySettings" class="d-none col-6">
+                                <label class="form-label text-light fw-semibold small d-flex justify-content-between mb-1">
+                                    <span id="qualityLabel">Quality</span>
+                                    <span id="qualityVal" class="text-info fw-bold">85%</span>
+                                </label>
+                                <input type="range" id="webpQuality" min="1" max="100" value="85" class="form-range mt-2">
+                            </div>
                         </div>
+                        <div id="formatHint" class="form-text text-secondary mt-1" style="font-size:0.7rem;"></div>
                     </div>
-                    <div class="card-footer panel-footer p-3">
-                        <button id="downloadBtn" class="btn btn-info btn-sm w-100 fw-bold py-2.5 shadow-sm text-uppercase tracking-wide"><i class="bi bi-download me-2"></i>Compile &amp; Export to WebP</button>
+                    <div class="card-footer panel-footer p-2">
+                        <button id="downloadBtn" class="btn btn-info btn-sm w-100 fw-bold py-2 shadow-sm text-uppercase tracking-wide"><i class="bi bi-download me-2"></i>Compile &amp; Export</button>
                     </div>
                 </div>
             </div>
@@ -215,7 +239,7 @@
 
         const DEFAULTS = {
             text: 'COPY',
-            fontSize: '50',
+            fontSize: '30',
             opacity: '0.5',
             color: '#c0c0c0',
             rotation: '-45',
@@ -225,8 +249,51 @@
             gapX: '150',
             gapY: '150',
             webpQuality: '85',
-            layoutMode: 'tiled'
+            layoutMode: 'tiled',
+            outputFormat: 'image/webp',
+            autoFitGap: true,
+            wrapWidth: '200'
         };
+
+        const FORMAT_EXT = {
+            'image/webp': 'webp',
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'image/avif': 'avif'
+        };
+
+        // Formats that make sense with no source image (pure text/tile watermark).
+        // JPG has no alpha channel so a transparent watermark would get a baked-in
+        // black background - we exclude it from this list.
+        const NO_IMAGE_FORMATS = ['image/webp', 'image/png', 'image/avif'];
+
+        let avifSupported = null; // cached after first feature-detect
+        function checkAvifSupport() {
+            if (avifSupported !== null) return Promise.resolve(avifSupported);
+            return new Promise((resolve) => {
+                const probe = document.createElement('canvas');
+                // Use a small but non-degenerate size - some encoders behave
+                // oddly on 1x1 inputs.
+                probe.width = 2;
+                probe.height = 2;
+                const pctx = probe.getContext('2d');
+                pctx.fillStyle = '#888';
+                pctx.fillRect(0, 0, 2, 2);
+                probe.toBlob((blob) => {
+                    avifSupported = !!(blob && blob.type === 'image/avif');
+                    console.log('[AVIF check] toBlob returned type:', blob && blob.type, '-> avifSupported =', avifSupported);
+                    resolve(avifSupported);
+                }, 'image/avif');
+                // Some browsers never call back for unsupported types
+                setTimeout(() => {
+                    if (avifSupported === null) {
+                        avifSupported = false;
+                        console.log('[AVIF check] toBlob callback never fired within 300ms -> avifSupported = false');
+                        resolve(false);
+                    }
+                }, 300);
+            });
+        }
 
         const canvas = document.getElementById('watermarkCanvas');
         const ctx = canvas.getContext('2d');
@@ -243,16 +310,21 @@
         const heightBox = document.getElementById('heightBox');
         const gapXBox = document.getElementById('gapXBox');
         const gapYBox = document.getElementById('gapYBox');
+        const autoFitGapBox = document.getElementById('autoFitGapBox');
+        const autoFitGap = document.getElementById('autoFitGap');
         const imageLoader = document.getElementById('imageLoader');
         const qualitySettings = document.getElementById('qualitySettings');
         const webpQuality = document.getElementById('webpQuality');
         const qualityVal = document.getElementById('qualityVal');
+        const qualityLabel = document.getElementById('qualityLabel');
+        const outputFormat = document.getElementById('outputFormat');
+        const formatHint = document.getElementById('formatHint');
         const previewImageInfo = document.getElementById('previewImageInfo');
         const previewImageFormatBadge = document.getElementById('previewImageFormatBadge');
         const previewImageInfoText = document.getElementById('previewImageInfoText');
         const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
 
-        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY'].reduce((acc, id) => {
+        const inputs = ['text', 'fontSize', 'opacity', 'color', 'rotation', 'fontFamily', 'gridWidth', 'gridHeight', 'gapX', 'gapY', 'wrapWidth'].reduce((acc, id) => {
             acc[id] = document.getElementById(id);
             return acc;
         }, {});
@@ -263,6 +335,8 @@
             Object.entries(inputs).forEach(([k, el]) => cfg[k] = el.value);
             cfg.webpQuality = webpQuality.value;
             cfg.layoutMode = currentMode;
+            cfg.outputFormat = outputFormat.value;
+            cfg.autoFitGap = autoFitGap.checked;
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch(e) {}
         }
 
@@ -278,6 +352,8 @@
             });
             webpQuality.value = cfg.webpQuality;
             qualityVal.textContent = `${cfg.webpQuality}%`;
+            outputFormat.value = cfg.outputFormat || DEFAULTS.outputFormat;
+            autoFitGap.checked = cfg.autoFitGap !== undefined ? cfg.autoFitGap : DEFAULTS.autoFitGap;
 
             currentMode = cfg.layoutMode || 'tiled';
             if (currentMode === 'tiled') {
@@ -285,6 +361,7 @@
             } else {
                 modeSingleRadio.checked = true;
             }
+            updateFormatUI();
         }
 
         function clearConfig() {
@@ -294,6 +371,8 @@
             });
             webpQuality.value = DEFAULTS.webpQuality;
             qualityVal.textContent = `${DEFAULTS.webpQuality}%`;
+            outputFormat.value = DEFAULTS.outputFormat;
+            autoFitGap.checked = DEFAULTS.autoFitGap;
             currentMode = DEFAULTS.layoutMode;
             modeTiledRadio.checked = true;
             modeSingleRadio.checked = false;
@@ -305,6 +384,7 @@
             imageLoader.value = '';
             updatePreviewNav();
             toggleControlsVisibility();
+            updateFormatUI();
             updateWatermark();
         }
 
@@ -313,6 +393,81 @@
             qualityVal.textContent = `${e.target.value}%`;
             saveConfig();
         });
+
+        outputFormat.addEventListener('change', () => {
+            saveConfig();
+            updateFormatUI();
+        });
+
+        autoFitGap.addEventListener('change', () => {
+            saveConfig();
+            updateWatermark();
+        });
+
+        function updateFormatUI() {
+            const hasImage = !!uploadedImage;
+            const fmt = outputFormat.value;
+            const avifOption = outputFormat.querySelector('option[value="image/avif"]');
+
+            // Disable formats that don't make sense without a source image (JPG, no alpha).
+            Array.from(outputFormat.options).forEach(opt => {
+                const disable = !hasImage && !NO_IMAGE_FORMATS.includes(opt.value);
+                opt.disabled = disable;
+            });
+
+            // AVIF encoding via canvas is not implemented in any browser today
+            // (Chrome/Firefox/Safari can decode AVIF, but toBlob/toDataURL silently
+            // falls back to PNG when asked for image/avif). Disable it outright
+            // once we've confirmed that, instead of letting people export a
+            // mislabeled file.
+            if (avifSupported === false && avifOption) {
+                avifOption.disabled = true;
+                avifOption.textContent = 'AVIF (unsupported)';
+            }
+            if (avifSupported === null) {
+                checkAvifSupport().then(ok => {
+                    if (!ok && avifOption) {
+                        avifOption.disabled = true;
+                        avifOption.textContent = 'AVIF (unsupported)';
+                        if (outputFormat.value === 'image/avif') {
+                            outputFormat.value = 'image/webp';
+                            saveConfig();
+                            updateFormatUI();
+                        }
+                    }
+                });
+            }
+
+            // If the current selection just became invalid, fall back to WebP.
+            if ((!hasImage && !NO_IMAGE_FORMATS.includes(fmt)) || (fmt === 'image/avif' && avifSupported === false)) {
+                outputFormat.value = 'image/webp';
+                saveConfig();
+            }
+
+            const selected = outputFormat.value;
+            const isLossy = selected === 'image/webp' || selected === 'image/jpeg' || selected === 'image/avif';
+            qualitySettings.classList.toggle('d-none', !isLossy);
+            if (selected === 'image/jpeg') qualityLabel.textContent = 'JPG Render Quality';
+            else if (selected === 'image/avif') qualityLabel.textContent = 'AVIF Render Quality';
+            else qualityLabel.textContent = 'WebP Render Quality';
+
+            let hint = '';
+            if (selected === 'image/jpeg' && !hasImage) {
+                hint = 'JPG requires a source image (no transparency support).';
+            } else if (selected === 'image/png') {
+                hint = 'PNG is lossless - the quality slider does not apply.';
+            } else if (selected === 'image/avif') {
+                hint = avifSupported
+                    ? 'AVIF supported in this browser.'
+                    : 'Checking AVIF support…';
+            }
+            formatHint.textContent = hint;
+
+            const dlBtn = document.getElementById('downloadBtn');
+            const isBatch = batchFiles.length > 1;
+            const label = isBatch ? 'Watermark All &amp; Download ZIP' : 'Compile &amp; Export';
+            dlBtn.innerHTML = `<i class="bi ${isBatch ? 'bi-file-zip' : 'bi-download'} me-2"></i>${label}`;
+        }
 
         imageLoader.addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
@@ -382,17 +537,10 @@
         }
 
         function toggleControlsVisibility() {
-            qualitySettings.classList.remove('d-none');
-
-            // Update badge & button
+            // Update batch badge
             const isBatch = batchFiles.length > 1;
             document.getElementById('batchBadge').classList.toggle('d-none', !isBatch);
-            const dlBtn = document.getElementById('downloadBtn');
-            if (isBatch) {
-                dlBtn.innerHTML = '<i class="bi bi-file-zip me-2"></i>Watermark All &amp; Download ZIP';
-            } else {
-                dlBtn.innerHTML = '<i class="bi bi-download me-2"></i>Compile &amp; Export to WebP';
-            }
+            updateFormatUI();
 
             if (uploadedImage) {
                 widthBox.classList.add('d-none');
@@ -401,10 +549,12 @@
                     dimensionsControls.classList.remove('d-none');
                     gapXBox.classList.remove('d-none');
                     gapYBox.classList.remove('d-none');
+                    autoFitGapBox.classList.remove('d-none');
                 } else {
                     dimensionsControls.classList.add('d-none');
                     gapXBox.classList.add('d-none');
                     gapYBox.classList.add('d-none');
+                    autoFitGapBox.classList.add('d-none');
                 }
             } else {
                 if (currentMode === 'single') {
@@ -413,12 +563,14 @@
                     heightBox.classList.add('d-none');
                     gapXBox.classList.add('d-none');
                     gapYBox.classList.add('d-none');
+                    autoFitGapBox.classList.add('d-none');
                 } else {
                     dimensionsControls.classList.remove('d-none');
                     widthBox.classList.remove('d-none');
                     heightBox.classList.remove('d-none');
                     gapXBox.classList.remove('d-none');
                     gapYBox.classList.remove('d-none');
+                    autoFitGapBox.classList.remove('d-none');
                 }
             }
         }
@@ -430,18 +582,43 @@
         const batchProgressLabel = document.getElementById('batchProgressLabel');
 
         function getWatermarkParams() {
+            const text = inputs.text.value;
+            const fontSize = parseInt(inputs.fontSize.value) || 20;
+            const fontFamily = inputs.fontFamily.value;
+            const rotation = (parseInt(inputs.rotation.value) || 0) * Math.PI / 180;
+            const wrapWidth = parseInt(inputs.wrapWidth.value) || 0;
+            const rawGapX = parseInt(inputs.gapX.value) || 150;
+            const rawGapY = parseInt(inputs.gapY.value) || 150;
+            const { gapX, gapY } = getEffectiveGap(text, fontSize, fontFamily, rotation, rawGapX, rawGapY, autoFitGap.checked, wrapWidth);
             return {
-                text: inputs.text.value,
-                fontSize: parseInt(inputs.fontSize.value) || 20,
+                text,
+                fontSize,
                 opacity: parseFloat(inputs.opacity.value) || 0.5,
                 color: inputs.color.value,
-                rotation: (parseInt(inputs.rotation.value) || 0) * Math.PI / 180,
-                fontFamily: inputs.fontFamily.value,
-                gapX: parseInt(inputs.gapX.value) || 150,
-                gapY: parseInt(inputs.gapY.value) || 150,
+                rotation,
+                fontFamily,
+                wrapWidth,
+                gapX,
+                gapY,
                 qualityFactor: parseFloat(webpQuality.value) / 100,
-                mode: currentMode
+                mode: currentMode,
+                format: outputFormat.value
             };
+        }
+
+        function canvasToDataURL(cnv, format, qualityFactor) {
+            if (format === 'image/png') return cnv.toDataURL('image/png');
+            const dataUrl = cnv.toDataURL(format, qualityFactor);
+            // Guard: if AVIF was requested but the browser silently encoded
+            // something else (every browser today does this), surface that
+            // instead of shipping a file with the wrong extension.
+            if (format === 'image/avif') {
+                const actualMime = dataUrl.slice(5, dataUrl.indexOf(';'));
+                if (actualMime !== 'image/avif') {
+                    throw new Error('AVIF encoding is not supported by this browser.');
+                }
+            }
+            return dataUrl;
         }
 
         function applyWatermarkToImage(imgEl, params) {
@@ -451,15 +628,15 @@
             const offCtx = offCanvas.getContext('2d');
             offCtx.drawImage(imgEl, 0, 0);
             if (params.mode === 'single') {
-                drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation);
+                drawWatermarkInstance(offCtx, offCanvas.width / 2, offCanvas.height / 2, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth);
             } else {
                 for (let x = params.gapX / 2; x < offCanvas.width + params.gapX; x += params.gapX) {
                     for (let y = params.gapY / 2; y < offCanvas.height + params.gapY; y += params.gapY) {
-                        drawWatermarkInstance(offCtx, x, y, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation);
+                        drawWatermarkInstance(offCtx, x, y, params.text, params.fontSize, params.fontFamily, params.color, params.opacity, params.rotation, params.wrapWidth);
                     }
                 }
             }
-            return offCanvas.toDataURL('image/webp', params.qualityFactor);
+            return canvasToDataURL(offCanvas, params.format, params.qualityFactor);
         }
 
         function loadImageFile(file) {
@@ -483,6 +660,7 @@
                 dlBtn.disabled = true;
                 batchProgress.classList.remove('d-none');
                 const params = getWatermarkParams();
+                const ext = FORMAT_EXT[params.format] || 'webp';
                 const zip = new JSZip();
                 const folder = zip.folder('watermarked');
                 const wmText = params.text.toLowerCase().replace(/\s+/g, '_');
@@ -495,7 +673,7 @@
                         const img = await loadImageFile(f);
                         const dataUrl = applyWatermarkToImage(img, params);
                         const base64 = dataUrl.split(',')[1];
-                        const outName = f.name.replace(/\.[^.]+$/, '') + `_${wmText}_wm.webp`;
+                        const outName = f.name.replace(/\.[^.]+$/, '') + `_${wmText}_wm.${ext}`;
                         folder.file(outName, base64, { base64: true });
                     } catch(err) { console.warn('Skipped:', f.name, err); }
                 }
@@ -514,9 +692,16 @@
                 const link = document.createElement('a');
                 const text = inputs.text.value.toLowerCase().replace(/\s+/g, '_');
                 const filename = uploadedImage ? `${uploadedImageName}_${text}_wm` : `${text}_wm`;
-                link.download = `${filename}.webp`;
+                const format = outputFormat.value;
+                const ext = FORMAT_EXT[format] || 'webp';
                 const qualityFactor = parseFloat(webpQuality.value) / 100;
-                link.href = canvas.toDataURL('image/webp', qualityFactor);
+                try {
+                    link.href = canvasToDataURL(canvas, format, qualityFactor);
+                } catch (err) {
+                    alert(err.message);
+                    return;
+                }
+                link.download = `${filename}.${ext}`;
                 link.click();
             }
         });
@@ -529,14 +714,45 @@
                 ? currentFile.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_')
                 : uploadedImageName;
             const text = inputs.text.value.toLowerCase().replace(/\s+/g, '_');
+            const format = outputFormat.value;
+            const ext = FORMAT_EXT[format] || 'webp';
             const qualityFactor = parseFloat(webpQuality.value) / 100;
             const link = document.createElement('a');
-            link.download = `${baseName}_${text}_wm.webp`;
-            link.href = canvas.toDataURL('image/webp', qualityFactor);
+            try {
+                link.href = canvasToDataURL(canvas, format, qualityFactor);
+            } catch (err) {
+                alert(err.message);
+                return;
+            }
+            link.download = `${baseName}_${text}_wm.${ext}`;
             link.click();
         });
 
-        function drawWatermarkInstance(context, x, y, text, fontSize, fontFamily, color, opacity, rotation) {
+        // Splits text into lines that fit within maxWidth (0/falsy = no wrap,
+        // returns the text as a single line). Wraps on whitespace; a single
+        // word longer than maxWidth is kept on its own line rather than
+        // broken mid-word.
+        function wrapText(context, text, fontSize, fontFamily, maxWidth) {
+            if (!maxWidth || maxWidth <= 0) return [text];
+            context.font = `${fontSize}px ${fontFamily}`;
+            const words = text.split(/\s+/).filter(Boolean);
+            if (words.length === 0) return [text];
+            const lines = [];
+            let current = words[0];
+            for (let i = 1; i < words.length; i++) {
+                const candidate = `${current} ${words[i]}`;
+                if (context.measureText(candidate).width <= maxWidth) {
+                    current = candidate;
+                } else {
+                    lines.push(current);
+                    current = words[i];
+                }
+            }
+            lines.push(current);
+            return lines;
+        }
+
+        function drawWatermarkInstance(context, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth) {
             context.save();
             context.translate(x, y);
             context.rotate(rotation);
@@ -545,8 +761,41 @@
             context.globalAlpha = opacity;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
-            context.fillText(text, 0, 0);
+            const lines = wrapText(context, text, fontSize, fontFamily, wrapWidth);
+            const lineHeight = fontSize * 1.2;
+            const startY = -((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((line, i) => {
+                context.fillText(line, 0, startY + i * lineHeight);
+            });
             context.restore();
+        }
+
+        // Width/height of the (possibly multi-line) text's rotated bounding
+        // box - reused for single-asset canvas sizing and tiled gap auto-fit.
+        function getRotatedTextBox(text, fontSize, fontFamily, rotation, wrapWidth) {
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            const lines = wrapText(ctx, text, fontSize, fontFamily, wrapWidth);
+            const lineHeight = fontSize * 1.2;
+            const textWidth = Math.max(...lines.map(l => ctx.measureText(l).width));
+            const textHeight = lines.length * lineHeight;
+            return {
+                width: Math.abs(textWidth * Math.cos(rotation)) + Math.abs(textHeight * Math.sin(rotation)),
+                height: Math.abs(textWidth * Math.sin(rotation)) + Math.abs(textHeight * Math.cos(rotation))
+            };
+        }
+
+        // Effective tile spacing for the watermark grid: when auto-fit is on,
+        // the gap grows to fit the text (plus a margin) so longer text never
+        // overlaps itself, regardless of font size or rotation. When off, the
+        // gap fields are used exactly as entered (old behavior).
+        function getEffectiveGap(text, fontSize, fontFamily, rotation, gapX, gapY, autoFit, wrapWidth) {
+            if (!autoFit) return { gapX, gapY };
+            const box = getRotatedTextBox(text, fontSize, fontFamily, rotation, wrapWidth);
+            const margin = 20;
+            return {
+                gapX: Math.max(gapX, box.width + margin),
+                gapY: Math.max(gapY, box.height + margin)
+            };
         }
 
         function formatFileSize(bytes) {
@@ -623,18 +872,16 @@
             const color = inputs.color.value;
             const rotation = (parseInt(inputs.rotation.value) || 0) * Math.PI / 180;
             const fontFamily = inputs.fontFamily.value;
+            const wrapWidth = parseInt(inputs.wrapWidth.value) || 0;
 
             if (uploadedImage) {
                 canvas.width = uploadedImage.width;
                 canvas.height = uploadedImage.height;
             } else if (currentMode === 'single') {
-                ctx.font = `${fontSize}px ${fontFamily}`;
-                const textMetrics = ctx.measureText(text);
-                const textWidth = textMetrics.width;
-                const textHeight = fontSize;
+                const box = getRotatedTextBox(text, fontSize, fontFamily, rotation, wrapWidth);
                 const padding = 60;
-                canvas.width = Math.abs(textWidth * Math.cos(rotation)) + Math.abs(textHeight * Math.sin(rotation)) + padding;
-                canvas.height = Math.abs(textWidth * Math.sin(rotation)) + Math.abs(textHeight * Math.cos(rotation)) + padding;
+                canvas.width = box.width + padding;
+                canvas.height = box.height + padding;
             } else {
                 canvas.width = parseInt(inputs.gridWidth.value) || 1200;
                 canvas.height = parseInt(inputs.gridHeight.value) || 1600;
@@ -646,13 +893,14 @@
             }
 
             if (currentMode === 'single') {
-                drawWatermarkInstance(ctx, canvas.width / 2, canvas.height / 2, text, fontSize, fontFamily, color, opacity, rotation);
+                drawWatermarkInstance(ctx, canvas.width / 2, canvas.height / 2, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth);
             } else {
-                const gapX = parseInt(inputs.gapX.value) || 150;
-                const gapY = parseInt(inputs.gapY.value) || 150;
+                const rawGapX = parseInt(inputs.gapX.value) || 150;
+                const rawGapY = parseInt(inputs.gapY.value) || 150;
+                const { gapX, gapY } = getEffectiveGap(text, fontSize, fontFamily, rotation, rawGapX, rawGapY, autoFitGap.checked, wrapWidth);
                 for (let x = gapX / 2; x < canvas.width + gapX; x += gapX) {
                     for (let y = gapY / 2; y < canvas.height + gapY; y += gapY) {
-                        drawWatermarkInstance(ctx, x, y, text, fontSize, fontFamily, color, opacity, rotation);
+                        drawWatermarkInstance(ctx, x, y, text, fontSize, fontFamily, color, opacity, rotation, wrapWidth);
                     }
                 }
             }
